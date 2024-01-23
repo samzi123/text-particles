@@ -1,0 +1,31 @@
+{
+  "name": "react-text-particles",
+  "version": "1.0.0",
+  "description": "Create interactive particle effects from text.",
+  "main": "./build/index.js",
+  "scripts": {
+    "build": "webpack"
+  },
+  "bugs": {
+    "url": "https://github.com/samzi123/react-image-particles/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/samzi123/react-image-particles.git"
+  },
+  "keywords": [
+    "Particles",
+    "Text",
+    "Interactive",
+    "React"
+  ],
+  "author": "Samuel Henderson",
+  "license": "ISC",
+  "devDependencies": {
+    "@babel/preset-env": "^7.23.8",
+    "@babel/preset-react": "^7.23.3",
+    "babel": "^6.23.0",
+    "babel-loader": "^9.1.3",
+    "webpack-cli": "^5.1.4"
+  }
+}
