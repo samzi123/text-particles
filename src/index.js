@@ -1,10 +1,15 @@
 import React, { useRef, useEffect } from "react";
 
-export default function TextToParticles({ text, width=200, height=200, particleSize=2, numParticles=null, fontSize=30 }) {
+export default function TextToParticles({ text="", particleSize=2, numParticles=null, fontSize=30, backgroundColor="transparent", color="white" }) {
     const canvasAsRef = useRef(null);
     // set the radius based on the image size because the image may be resized and we want the effect to scale accordingly
     // const mouseRadius = (width + height) / 12;
     const mouseRadius = fontSize / 3;
+    var height;
+    var width;
+    const xPadding = fontSize / 2;
+    const yPadding = fontSize / 2;
+    
     // used to determine if a particle is close enough to the mouse to be affected by it
     const maxDistanceSquared = mouseRadius * mouseRadius;
     const particleSizeSquared = particleSize * particleSize;
@@ -12,8 +17,8 @@ export default function TextToParticles({ text, width=200, height=200, particleS
 
     // use spacial partitioning grid to speed up lookup of particles close to the mouse
     const positionGrid = [];
-    const positionGridRows = Math.ceil(height / mouseRadius);
-    const positionGridCols = Math.ceil(width / mouseRadius);
+    var positionGridRows;
+    var positionGridCols;
 
     useEffect(() => {
         class GridCell {
@@ -29,14 +34,6 @@ export default function TextToParticles({ text, width=200, height=200, particleS
                 this.particles.delete(particle);
             }
         }
-        
-        for (let i = 0; i < positionGridRows; i++) {
-            positionGrid[i] = [];
-            for (let j = 0; j < positionGridCols; j++) {
-                // todo: use a linked list instead of a set
-                positionGrid[i][j] = new GridCell();
-            }
-        }
 
         const canvas = canvasAsRef.current;
         const ctx = canvas.getContext("2d");
@@ -46,11 +43,11 @@ export default function TextToParticles({ text, width=200, height=200, particleS
         var NUM_PARTICLES = numParticles !== null ? numParticles : 1000;
 
         // if we don't scale back the image back slightly, the particles disappear at the edges of the canvas
-        const imageOffsetX = 0.2;
-        const imageOffsetY = 0.2;
+        const imageOffsetX = 0.0;
+        const imageOffsetY = 0.0;
         
-        canvas.width  = width;
-        canvas.height = height;
+        // canvas.width  = width;
+        // canvas.height = height;
         let particleArr = [];
         let mouseMoved = false;
         
@@ -58,6 +55,10 @@ export default function TextToParticles({ text, width=200, height=200, particleS
             x: null,
             y: null,
             radius: mouseRadius,
+        }
+
+        if (backgroundColor === "transparent" || backgroundColor === "") {
+            backgroundColor = "rgba(0, 0, 0, 0)";
         }
         
         window.addEventListener('mousemove', function(event){
@@ -67,6 +68,16 @@ export default function TextToParticles({ text, width=200, height=200, particleS
             mouse.y = event.clientY - rect.top
             mouseMoved = true;
         });
+
+        function createPositionGrid() {
+            for (let i = 0; i < positionGridRows; i++) {
+                positionGrid[i] = [];
+                for (let j = 0; j < positionGridCols; j++) {
+                    // todo: use a linked list instead of a set
+                    positionGrid[i][j] = new GridCell();
+                }
+            }
+        }
         
         function drawImage(data) {
             class Particle {
@@ -154,16 +165,21 @@ export default function TextToParticles({ text, width=200, height=200, particleS
                                 continue;
                             }
         
-                            const positionX = (canvas.width * (imageOffsetX / 2)) + Math.floor((x / data.width) * canvas.width) * (1 - imageOffsetX);
-                            const positionY = (canvas.height * (imageOffsetY / 2)) + Math.floor((y / data.height) * canvas.height) * (1 - imageOffsetY);
+                            const positionX = (canvas.width * (imageOffsetX / 2)) + (Math.floor((x / data.width) * canvas.width) * (1 - imageOffsetX)) + xPadding;
+                            const positionY = (canvas.height * (imageOffsetY / 2)) + (Math.floor((y / data.height) * canvas.height) * (1 - imageOffsetY)) + yPadding;
+                            // const positionX = Math.floor((x / data.width) * canvas.width);
+                            // const positionY = Math.floor((y / data.height) * canvas.height);
                             const index = (y * 4 * data.width) + (x * 4);
         
-                            const color = "rgb(" + data.data[index] + "," + data.data[index + 1] + "," + data.data[index + 2] + ")";
+                            // const color = "rgb(" + data.data[index] + "," + data.data[index + 1] + "," + data.data[index + 2] + ")";
                             particleArr.push(new Particle(positionX, positionY, color, particleSize));
 
                             // add particle to spatial optimization grid
                             const row = Math.floor(positionY / mouseRadius);
                             const col = Math.floor(positionX / mouseRadius);
+
+                            if (row < 0 || row >= positionGridRows || col < 0 || col >= positionGridCols)
+                                continue;
 
                             positionGrid[row][col].particles.add(particleArr[particleArr.length - 1]);
                         }
@@ -174,6 +190,8 @@ export default function TextToParticles({ text, width=200, height=200, particleS
             function animate() {
                 requestAnimationFrame(animate);
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = backgroundColor;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
 
                 // only draw particles that are close to the mouse
                 const mouseRow = Math.floor(mouse.y / mouseRadius);
@@ -214,10 +232,25 @@ export default function TextToParticles({ text, width=200, height=200, particleS
 
         // creates particles that take the form of some text
         function createParticles(inputText) {
+            ctx.font = fontSize + "px Verdana";
+            const measureText = ctx.measureText(inputText);
+            width = measureText.width + xPadding * 2;
+            height = measureText.fontBoundingBoxAscent + measureText.fontBoundingBoxDescent + yPadding * 2;
+            canvas.width  = width;
+            canvas.height = height;
+
             ctx.fillStyle = "white";
             ctx.font = fontSize + "px Verdana";
             ctx.fillText(inputText, 0, fontSize);
-            return createImageBitmap(canvas);
+            
+            const bitmap = createImageBitmap(canvas);
+
+            positionGridRows = Math.ceil(height / mouseRadius);
+            positionGridCols = Math.ceil(width / mouseRadius);
+
+            createPositionGrid();
+
+            return bitmap;
         }
         
         /** @param {ImageBitmap} bitmap */
