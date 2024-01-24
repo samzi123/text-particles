@@ -37,10 +37,6 @@ export default function TextToParticles({ text="", particleSize=2, numParticles=
 
         const canvas = canvasAsRef.current;
         const ctx = canvas.getContext("2d");
-        
-        // whether to use the number of particles specified in NUM_PARTICLES or the number of pixels in the image
-        const IS_NUM_PARTICLES_SET = numParticles !== null;
-        var NUM_PARTICLES = numParticles !== null ? numParticles : 1000;
 
         // if we don't scale back the image back slightly, the particles disappear at the edges of the canvas
         const imageOffsetX = 0.0;
@@ -154,24 +150,21 @@ export default function TextToParticles({ text="", particleSize=2, numParticles=
         
             function init() {
                 particleArr = [];
+                // can't have more particles than pixels
                 const numPixelsWithPositiveAlpha = data.data.filter((_, i) => i % 4 === 3 && data.data[i] > 128).length;
-                NUM_PARTICLES = Math.min(NUM_PARTICLES, numPixelsWithPositiveAlpha);
+                numParticles = Math.min(numParticles, numPixelsWithPositiveAlpha);
         
                 for (let y = 0, y2 = data.height; y < y2; y++) {
                     for (let x = 0, x2 = data.width; x < x2; x++) {
                         if (data.data[(y * 4 * data.width) + (x * 4) + 3] > 128) {
                             // calculate if we wanna show this particle or not to reach the desired number of particles
-                            if (IS_NUM_PARTICLES_SET && NUM_PARTICLES < numPixelsWithPositiveAlpha && Math.random() > NUM_PARTICLES / numPixelsWithPositiveAlpha) {
+                            if (numParticles < numPixelsWithPositiveAlpha && Math.random() > numParticles / numPixelsWithPositiveAlpha) {
                                 continue;
                             }
         
-                            const positionX = (canvas.width * (imageOffsetX / 2)) + (Math.floor((x / data.width) * canvas.width) * (1 - imageOffsetX)) + xPadding;
-                            const positionY = (canvas.height * (imageOffsetY / 2)) + (Math.floor((y / data.height) * canvas.height) * (1 - imageOffsetY)) + yPadding;
-                            // const positionX = Math.floor((x / data.width) * canvas.width);
-                            // const positionY = Math.floor((y / data.height) * canvas.height);
-                            const index = (y * 4 * data.width) + (x * 4);
-        
-                            // const color = "rgb(" + data.data[index] + "," + data.data[index + 1] + "," + data.data[index + 2] + ")";
+                            const positionX = Math.floor((x / data.width) * canvas.width) + xPadding;
+                            const positionY = Math.floor((y / data.height) * canvas.height) + yPadding;
+                  
                             particleArr.push(new Particle(positionX, positionY, color, particleSize));
 
                             // add particle to spatial optimization grid
@@ -231,7 +224,7 @@ export default function TextToParticles({ text="", particleSize=2, numParticles=
         }
 
         // creates particles that take the form of some text
-        function createParticles(inputText) {
+        function createBitmap(inputText) {
             ctx.font = fontSize + "px Verdana";
             const measureText = ctx.measureText(inputText);
             width = measureText.width + xPadding * 2;
@@ -249,6 +242,8 @@ export default function TextToParticles({ text="", particleSize=2, numParticles=
             positionGridCols = Math.ceil(width / mouseRadius);
 
             createPositionGrid();
+            // scale the number of particles based on the text size and the particle size, unless the user has specified a number of particles
+            numParticles = numParticles || Math.ceil(width * height / (30 * particleSize));
 
             return bitmap;
         }
@@ -270,7 +265,7 @@ export default function TextToParticles({ text="", particleSize=2, numParticles=
                 return;
             }
             
-            createParticles(text)
+            createBitmap(text)
                 .then(readImageData)
                 .then(pixels => {
                     drawImage(pixels);
