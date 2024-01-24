@@ -1,10 +1,7 @@
 import React, { useRef, useEffect } from "react";
 
-export default function TextToParticles({ text="", particleSize=2, numParticles=null, fontSize=30, backgroundColor="transparent", color="white" }) {
+export default function TextToParticles({ text="", particleSize=2, numParticles=null, fontSize=30, backgroundColor="transparent", color="#000000", mouseRadius = fontSize / 3, font="sans-serif" }) {
     const canvasAsRef = useRef(null);
-    // set the radius based on the image size because the image may be resized and we want the effect to scale accordingly
-    // const mouseRadius = (width + height) / 12;
-    const mouseRadius = fontSize / 3;
     var height;
     var width;
     const xPadding = fontSize / 2;
@@ -37,16 +34,9 @@ export default function TextToParticles({ text="", particleSize=2, numParticles=
 
         const canvas = canvasAsRef.current;
         const ctx = canvas.getContext("2d");
-
-        // if we don't scale back the image back slightly, the particles disappear at the edges of the canvas
-        const imageOffsetX = 0.0;
-        const imageOffsetY = 0.0;
         
-        // canvas.width  = width;
-        // canvas.height = height;
         let particleArr = [];
         let mouseMoved = false;
-        
         let mouse = {
             x: null,
             y: null,
@@ -128,10 +118,10 @@ export default function TextToParticles({ text="", particleSize=2, numParticles=
                     if (mouseMoved && distanceSquared < maxDistanceSquared + particleSizeSquared) {
                         const forceDirectionX = dx / mouseRadius;
                         const forceDirectionY = dy / mouseRadius;
-                        const force =  1 - (distanceSquared / maxDistanceSquared);
+                        const forceToApply = 1 - (distanceSquared / maxDistanceSquared);
             
-                        const directionX = forceDirectionX * force * this.density;
-                        const directionY = forceDirectionY * force * this.density;
+                        const directionX = forceDirectionX * forceToApply * this.density;
+                        const directionY = forceDirectionY * forceToApply * this.density;
         
                         this.x -= directionX;
                         this.y -= directionY;
@@ -225,7 +215,7 @@ export default function TextToParticles({ text="", particleSize=2, numParticles=
 
         // creates particles that take the form of some text
         function createBitmap(inputText) {
-            ctx.font = fontSize + "px Verdana";
+            ctx.font = fontSize + "px " + font;
             const measureText = ctx.measureText(inputText);
             width = measureText.width + xPadding * 2;
             height = measureText.fontBoundingBoxAscent + measureText.fontBoundingBoxDescent + yPadding * 2;
@@ -233,7 +223,7 @@ export default function TextToParticles({ text="", particleSize=2, numParticles=
             canvas.height = height;
 
             ctx.fillStyle = "white";
-            ctx.font = fontSize + "px Verdana";
+            ctx.font = fontSize + "px " + font;
             ctx.fillText(inputText, 0, fontSize);
             
             const bitmap = createImageBitmap(canvas);
