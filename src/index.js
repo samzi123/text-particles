@@ -266,6 +266,6 @@ export default function TextToParticles({ text="", particleSize=2, numParticles=
     }, [text, particleSize, numParticles, fontSize, backgroundColor, color, mouseRadius, font]);
 
   return (
-    <canvas ref={canvasAsRef} style={{ zIndex: 5 }}></canvas>
+    <canvas ref={canvasAsRef} style={{zIndex: 5}} />
   );
 }
