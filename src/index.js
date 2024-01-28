@@ -263,7 +263,7 @@ export default function TextToParticles({ text="", particleSize=2, numParticles=
 
             hasLoaded = true;
         });
-    }, []);
+    }, [test, particleSize, numParticles, fontSize, backgroundColor, color, mouseRadius, font]);
 
   return (
     <canvas ref={canvasAsRef} style={{ zIndex: 5 }}></canvas>
