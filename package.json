@@ -1,5 +1,5 @@
 {
-  "name": "react-text-particles",
+  "name": "text-particles",
   "version": "1.0.0",
   "description": "Create interactive particle effects from text.",
   "main": "./build/index.js",
@@ -7,11 +7,11 @@
     "build": "webpack"
   },
   "bugs": {
-    "url": "https://github.com/samzi123/react-image-particles/issues"
+    "url": "https://github.com/samzi123/text-particles/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/samzi123/react-image-particles.git"
+    "url": "git+https://github.com/samzi123/text-particles.git"
   },
   "keywords": [
     "Particles",

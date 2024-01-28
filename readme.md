@@ -1,18 +1,18 @@
-# react-image-particles
+# text-particles
 A React component that converts any text into interactive particles.
 
-![Example](https://instagram-caption-tool.s3.amazonaws.com/demo.gif)
+![Example](https://instagram-caption-tool.s3.amazonaws.com/hiMomDemo-text-particles.gif)
 
 ## Installation
 Using npm:
-`npm install react-text-particles`
+`npm install text-particles`
 
 Using yarn:
-`yarn add react-tex-particles`
+`yarn add text-particles`
 
 ## Usage
 ```javascript 
-import TextToParticles from 'react-text-particles';
+import TextToParticles from 'text-particles';
 
 const App = () => {
   return (
@@ -42,7 +42,7 @@ The `<TextToParticles>` component accepts the following props:
 Samuel Henderson
 
 Contributions are welcome!
-Repo: https://github.com/samzi123/react-text-particles
+Repo: https://github.com/samzi123/text-particles
 
 ## License
 MIT
