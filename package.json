@@ -1,6 +1,6 @@
 {
   "name": "text-particles",
-  "version": "1.0.2",
+  "version": "1.0.4",
   "description": "Create interactive particle effects from text.",
   "main": "./build/index.js",
   "scripts": {
